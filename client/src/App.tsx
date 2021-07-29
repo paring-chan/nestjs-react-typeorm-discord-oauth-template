@@ -1,26 +1,49 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from 'react'
+import { BrowserRouter, Route, Switch } from 'react-router-dom'
+import Home from './views/Home'
+import Callback from './views/Callback'
+import { useRecoilState, useSetRecoilState } from 'recoil'
+import { tokenState, userState } from './state'
+import axios from 'axios'
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+const App = () => {
+    const [token, setToken] = useRecoilState(tokenState)
+    const setUser = useSetRecoilState(userState)
+
+    React.useEffect(() => {
+        if (!localStorage.token) return
+        ;(async () => {
+            try {
+                const { data: user } = await axios.get('/users/@me', {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.token}`,
+                    },
+                })
+                setToken(localStorage.token)
+                setUser(user)
+            } catch (e) {
+                setToken(false)
+                return
+            }
+        })()
+        // eslint-disable-next-line
+    }, [])
+
+    React.useEffect(() => {
+        if (token === false) {
+            setUser(null)
+        }
+        // eslint-disable-next-line
+    }, [token])
+
+    return (
+        <BrowserRouter>
+            <Switch>
+                <Route exact path="/" component={Home} />
+                <Route exact path="/callback" component={Callback} />
+            </Switch>
+        </BrowserRouter>
+    )
 }
 
-export default App;
+export default App

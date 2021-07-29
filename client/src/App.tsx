@@ -30,6 +30,8 @@ const App = () => {
     }, [])
 
     React.useEffect(() => {
+        axios.defaults.headers.Authorization = token ? `Bearer ${token}` : ''
+
         if (token === false) {
             setUser(null)
         }

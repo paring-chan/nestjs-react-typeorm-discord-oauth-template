@@ -11,7 +11,10 @@ const App = () => {
     const setUser = useSetRecoilState(userState)
 
     React.useEffect(() => {
-        if (!localStorage.token) return
+        if (!localStorage.token) {
+            setToken(false)
+            return
+        }
         ;(async () => {
             try {
                 const { data: user } = await axios.get('/users/@me', {

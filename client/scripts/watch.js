@@ -1,23 +1,35 @@
 const craco = require('@craco/craco')
 const webpack = require('webpack')
-const ProgressBarPlugin = require('progress-bar-webpack-plugin')
 
 console.log('설정 불러오는중...')
 
 const config = craco.createWebpackDevConfig(require('../craco.config'))
 
-config.plugins.push(
-    new ProgressBarPlugin({
-        format: '  빌드 [:bar] :percent (:elapsed 초)',
-        clear: false,
-        width: 60,
-    }),
-)
+process.env.NODE_ENV = 'development'
 
-console.log('컴파일러 시작')
+const fs = require('fs-extra')
+const paths = require('react-scripts/config/paths')
 
-const compiler = webpack(config)
+// // removes react-dev-utils/webpackHotDevClient.js at first in the array
+// config.entry.shift()
 
-compiler.watch({}, (err, stats) => {
-    console.log(stats.hash)
+webpack(config).watch({}, (err, stats) => {
+    if (err) {
+        console.error(err)
+    } else {
+        copyPublicFolder()
+    }
+    console.error(
+        stats.toString({
+            chunks: false,
+            colors: true,
+        }),
+    )
 })
+
+function copyPublicFolder() {
+    fs.copySync(paths.appPublic, paths.appBuild, {
+        dereference: true,
+        filter: (file) => file !== paths.appHtml,
+    })
+}

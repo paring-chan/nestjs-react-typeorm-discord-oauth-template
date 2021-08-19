@@ -4,6 +4,10 @@ MAKEFLAGS+="-j 2"
 
 all: dev
 
+install:
+	yarn
+	cd client && yarn
+
 dev-backend:
 	yarn start:dev
 
